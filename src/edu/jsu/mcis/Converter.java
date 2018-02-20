@@ -55,7 +55,63 @@ public class Converter {
             JSONObject jsonObject = new JSONObject();
             
             // INSERT YOUR CODE HERE
+             String[] headings = iterator.next();//previously named headings for col headers
             
+            JSONArray records = new JSONArray(); //Container for records
+            String[] record;
+            ArrayList<String> rowHeaders = new ArrayList<String>();//The array for row headers
+            ArrayList<String> colHeaders = new ArrayList<String>();
+            ArrayList<ArrayList> data = new ArrayList<ArrayList>();//The rest of the data
+            
+            //Get the data put in the proper Array List
+            
+            //Put the headings in the proper Array List
+            for(int i = 0; i < headings.length; i ++){
+                colHeaders.add(headings[i]);
+            }
+            
+            while (iterator.hasNext()){
+                record = iterator.next();
+                ArrayList<Integer> groupOfGrades = new ArrayList<Integer>();
+                for(int i = 0; i < headings.length; i++){
+                    //System.out.println(headings[i] + " " + record[i]);
+                    if(i == 0){
+                       rowHeaders.add(record[i]);
+                       //System.out.println(rowHeaders);
+                    }
+                    else{
+                        //data.add(record[i]);
+                        //System.out.println(data);
+                        //System.out.println(record[i]);
+                        groupOfGrades.add(Integer.parseInt(record[i]));
+                        //jsonObject.put(headings[i],record[i]);
+                    }
+                    //System.out.println(Integer.toString(i));
+                }
+                data.add(groupOfGrades);
+             
+            }
+               
+              
+            jsonObject.put("rowHeaders",rowHeaders);
+            jsonObject.put("colHeaders",colHeaders);
+            for(int i = 0; i < data.size(); i++){
+                //System.out.println(data.get(i));
+            }
+            jsonObject.put("data",data);
+            
+            records.add(jsonObject);
+            
+            results += JSONValue.toJSONString(records);
+            
+            //PRINT STATEMENTS
+            /*
+            System.out.println(rowHeaders);
+            for(int i = 0; i < headings.length;i++){
+                System.out.print(headings[i] + " ");
+            }
+            System.out.println(data);
+            */
         }
         
         catch(IOException e) { return e.toString(); }
@@ -77,7 +133,59 @@ public class Converter {
             CSVWriter csvWriter = new CSVWriter(writer, ',', '"', '\n');
             
             // INSERT YOUR CODE HERE
+            ArrayList<String> csvData = new ArrayList<String>();
+            Object[] headings = jsonObject.keySet().toArray();
+            String titles = jsonObject.get(headings[2]).toString();
             
+            String[] rawData = jsonObject.get(headings[1]).toString().split(",");
+            
+            for(int i = 0; i < rawData.length; i++){
+                System.out.print(rawData[i]+ " ");
+            }
+            /*
+            ArrayList<String> combedData = new ArrayList<String>();
+            ArrayList<String> data = new ArrayList<String>();
+            
+            String[] id = jsonObject.get(headings[0]).toString().split(",");
+            ArrayList<String> combinedData = new ArrayList<String>();
+            
+            for(int i = 0; i < rawData.length; i++){
+                System.out.println(rawData[i]);
+                combedData.add(Arrays.toString(rawData[i].split("\\[")));
+            }
+            
+            for(int i = 0; i < combedData.size();i++){
+                data.add(Arrays.toString(combedData.get(i).split("\\]")));
+            }
+            
+            
+            System.out.println(combedData.toString());
+            System.out.println(data.toString());
+            */
+            
+            //for(int i = 0; i < rawData.length; i++){
+                //combinedData.add(id[i]);
+                //combinedData.add(data[i]);
+                
+            //}
+            //System.out.println(combinedData.toString());
+            //for (char c : id.toCharArray()){
+               // System.out.println(c);
+             //}
+            //System.out.println(jsonObject.keySet());//This gets us rowHeaders, data, and colHeaders
+            
+            //Add the colHeaders first
+            //csvData.add(jsonObject.get(headings[2]).toString());
+            //csvData.add(jsonObject.get(headings[1]).toString());
+            for(int i = 0; i < headings.length - 1; i++){
+                
+                //csvData.add(jsonObject.get(headings[i]).toString());
+                //System.out.println(jsonObject.get(jsonObject.keySet().toArray()[i]));
+            }
+            //csvData.add()
+            //csvWriter.writeNext(csvData.toArray(new String[0]));
+            System.out.println(csvData.toString());
+            //results += writer.toString();
         }
         
         catch(ParseException e) { return e.toString(); }
