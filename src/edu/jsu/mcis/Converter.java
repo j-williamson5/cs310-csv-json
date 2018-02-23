@@ -95,14 +95,12 @@ public class Converter {
               
             jsonObject.put("rowHeaders",rowHeaders);
             jsonObject.put("colHeaders",colHeaders);
-            for(int i = 0; i < data.size(); i++){
-                //System.out.println(data.get(i));
-            }
             jsonObject.put("data",data);
             
             records.add(jsonObject);
             
             results += JSONValue.toJSONString(records);
+            results = results.substring(1, results.length()-1);
             
             //PRINT STATEMENTS
             /*
@@ -133,83 +131,65 @@ public class Converter {
             CSVWriter csvWriter = new CSVWriter(writer, ',', '"', '\n');
             
             // INSERT YOUR CODE HERE
-            //ArrayList<String> csvData = new ArrayList<String>();
-            String csvString = "";
-            Object[] headings = jsonObject.keySet().toArray();//rowHeaders data colHeaders
-            JSONArray csvDataArray = new JSONArray();
             
-            String cleanedColHeaders = jsonObject.get("colHeaders").toString().replace("[","");
-            String cleanColHeaders = cleanedColHeaders.replace("]","");
-            String colHeadersNoQuotes = cleanColHeaders.replace("\"","");
-            String[] colHeaders = colHeadersNoQuotes.split(",");
+            //Get Fromt he jsonObject and put the items into JSONArrays
+            JSONArray jsonColHeaders = (JSONArray) jsonObject.get("colHeaders");
+            JSONArray jsonRowHeaders = (JSONArray) jsonObject.get("rowHeaders");
+            JSONArray jsonData = (JSONArray) jsonObject.get("data");
+            Integer numberOfDataItems = 5;
+            //Make String arrays for the items
+            String[] csvColHeaders = new String[jsonColHeaders.size()];
+            String[] csvRowHeaders = new String[jsonRowHeaders.size()];
+            String[][] csvStringData = new String[jsonData.size()][4];
+            String[][] csvRows = new String[csvRowHeaders.length][numberOfDataItems];
             
-            String cleanedRowHeaders = jsonObject.get("rowHeaders").toString().replace("[","");
-            String cleanRowHeaders = cleanedRowHeaders.replace("]","");
-            String rowHeadersNoQuotes = cleanRowHeaders.replace("\"","");
-            String[] rowHeaders = rowHeadersNoQuotes.split(",");
+            //Put data in the String arrays
+            for(int i = 0; i < jsonColHeaders.size(); i++){
+                csvColHeaders[i] = jsonColHeaders.get(i).toString();
+            }
+            for(int i = 0; i < jsonData.size();i++){
+                JSONArray currentData = (JSONArray)jsonData.get(i);
+                for(int j = 0; j < currentData.size(); j++){
+                     csvStringData[i][j] = currentData.get(j).toString();
+                }
+            }
             
-            String cleanedData = jsonObject.get("data").toString().replace("[","");
-            String cleanData = cleanedData.replace("]","");
-            String[] data = cleanData.split(",");
+            for(int i = 0; i < jsonRowHeaders.size();i++){
+                csvRowHeaders[i] = jsonRowHeaders.get(i).toString();
+            }
+            for(int i = 0; i < csvRowHeaders.length;i++){
+                csvRows[i][0] = csvRowHeaders[i];
+                for(int j = 0; j < numberOfDataItems-1;j++){
+                        csvRows[i][j+1] = csvStringData[i][j];
+                }
+            }
+            csvWriter.writeNext(csvColHeaders);
+            for(String[] item: csvRows){
+                csvWriter.writeNext(item);
+            }
             /*
-            String[] csvDataArray =  {titles,ids,rawData};
-            for(int i = 0; i < csvDataArray.length; i++){
-                System.out.println(csvDataArray[i]);
-            }
-           
-            csvWriter.writeNext(csvDataArray);
-          
-            results += writer.toString();
-            */
-            //System.out.println(jsonObject.toJSONString());
-            
-            //Add the colHeaders
-            for(int i = 0; i < colHeaders.length; i++){
-                csvDataArray.add(colHeaders[i]);
-                if(i != colHeaders.length - 1){
-                    //csvDataArray.add("\"" + colHeaders[i] + "\","); //NO CSV WRITER
-                }
-                else{
-                   //csvDataArray.add("\"" + colHeaders[i] + "\""); //NO CSV WRITER
-                }
-            }
-            
-            //Pair the rowHeaders with the data
-            for(int i = 0; i < data.length; i++){
-                
-                //String[] temporaryDataArray = {rowHeaders[i],data[0 + (4* i)],data[1 + (4 * i)],data[2 + (4 * i)],data[3 + (4 * i)]};
-                //csvDataArray.add(temporaryDataArray);
-                if(i%4 == 0){
-                   // csvDataArray.add("\"" + rowHeaders[i/4] + "\",");//add the ID //NO CSV WRITER
-                    csvDataArray.add(rowHeaders[i/4]);
-                    
-                }
-                csvDataArray.add(data[i]);
-                if((i+1)%4 == 0){
-                   //csvDataArray.add("\"" + data[i] + "\""); //NO CSV WRITER
-                }
-                else{
-                    //csvDataArray.add("\"" + data[i] + "\","); //NO CSV WRITER
+            for(int i = 0; i < jsonRowHeaders.size();i++){
+                //String[] currentData = jsonData[i];
+                csvRows[i][0] =  jsonRowHeaders.get(i).toString();
+                for(int j = 0; j < numberOfDataItems;j++){
+                    if(j != 0){
+                        csvRows[i][j] = jsonData.get(j).toString();
+                    }
                 }
                 
             }
-            
 
-            
-            String[] csvData = Arrays.copyOf(csvDataArray.toArray(), csvDataArray.toArray().length, String[].class);
-            
-            for(Object item: csvData){
-                item = item.toString();
-            }
-            
-            csvWriter.writeNext(csvData);
-            /*
-            for(Object item: csvDataArray){
-                results += item.toString(); //NO CSV WRITER
-            }
+
+            csvWriter.writeNext(csvColHeaders);
+            for(int i = 0; i < csvRows.length;i++){
+                for(int j = 0; j <numberOfDataItems; j++){
+                    String[] currentRow = {csvRows[i][j]};
+                    csvWriter.writeNext(currentRow);
+                }
 */
+           
+            
             results = writer.toString();
-                                                                                               
         }                                                                           
         
         catch(ParseException e) { return e.toString(); }
